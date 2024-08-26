@@ -248,7 +248,7 @@ SET AdultMortality = CASE
     ELSE AdultMortality
     END;
 
-# EDA TASK 1:
+# EDA TASK 1: Basic Descriptive Statistics
 SELECT Country, ROUND(AVG(Lifeexpectancy),1) AS avg_le, MIN(Lifeexpectancy) AS min_le, MAX(Lifeexpectancy) AS max_le
 FROM worldlifexpectancy
 GROUP BY Country;
@@ -261,20 +261,20 @@ FROM (SELECT @row_index:=@row_index+1 AS row_index,
     ORDER BY worldlifexpectancy.Lifeexpectancy) AS w
 WHERE w.row_index IN (FLOOR(@row_index / 2), CEIL(@row_index / 2)); # Median = 72.1
 
-# EDA TASK 2:
+# EDA TASK 2: Trend Analysis (of a country of my choice)
 SELECT Country, Year, Lifeexpectancy
 FROM worldlifexpectancy
 WHERE Country = 'Viet Nam' ORDER BY Year;
 # => Vietnamese people's life expectancy was steadily increasing over the years.
 
-# EDA TASK 3:
+# EDA TASK 3: Comparative Analysis (Between developed and developing countries)
 SELECT Status, AVG(Lifeexpectancy)
 FROM worldlifexpectancy
 WHERE Year = 2022
 GROUP BY Status;
 # => Developed countries have significantly higher life expectancy than developing countries
 
-# EDA TASK 4:
+# EDA TASK 4: Mortality Analysis
 # Calculate the correlation coefficient by using the raw formula
 SELECT SUM((AdultMortality - (SELECT AVG(AdultMortality) FROM worldlifexpectancy))*
 	(Lifeexpectancy - (SELECT AVG(Lifeexpectancy) FROM worldlifexpectancy))) /
@@ -283,7 +283,7 @@ SELECT SUM((AdultMortality - (SELECT AVG(AdultMortality) FROM worldlifexpectancy
 FROM worldlifexpectancy;
 # => corr = -0.8923, a very high negative correlation.
 
-# EDA TASK 5:  
+# EDA TASK 5: Impact of GDP
 SELECT ROUND(AVG(GDP),1) AS avg_gdp, MIN(GDP) AS min_gdp, MAX(GDP) AS max_gdp
 FROM worldlifexpectancy;
 
@@ -306,7 +306,7 @@ FROM (
 GROUP BY gdp_tags ORDER BY AVG(Lifeexpectancy);
 # => Groups with higher GDP have higher Life expectancy
 
-# EDA TASK 6:
+# EDA TASK 6: Disease Impact
 SELECT AVG(Measles), AVG(Polio)
 FROM worldlifexpectancy; # AVG Measles = 2428, AVG Polio = 82
 
@@ -329,7 +329,7 @@ FROM (
 GROUP BY polio_tags ORDER BY AVG(Lifeexpectancy);
 # => It's clear that higher cases of Measles and Polio tend to lead to lower Life expectancy
 
-# EDA TASK 7:
+# EDA TASK 7: Schooling and Health
 SELECT Country, Schooling, AVG(Lifeexpectancy)
 FROM worldlifexpectancy
 WHERE Schooling = (SELECT MIN(Schooling) FROM worldlifexpectancy)
@@ -337,14 +337,14 @@ WHERE Schooling = (SELECT MIN(Schooling) FROM worldlifexpectancy)
 GROUP BY Country, Schooling;
 # => The country with the highest Schooling has a Life expectancy of 1.76 times longer than the country with the lowest Schooling
 
-# EDA TASK 8:
+# EDA TASK 8: BMI Trends
 SELECT Country, Year, BMI
 FROM worldlifexpectancy
 WHERE Country = 'Viet Nam'
 ORDER BY Year;
 # Overall, Vietnam's BMI has an upward trend. It increased slightly, steadily from 2007 to 2022.
 
-# EDA TASK 9:
+# EDA TASK 9: Infant Mortality
 # Countries with highest life expectancy
 SELECT Country, ROUND(AVG(infantdeaths),0), ROUND(AVG(`under-fivedeaths`),0)
 FROM worldlifexpectancy
@@ -360,13 +360,13 @@ WHERE Country IN (SELECT Country FROM worldlifexpectancy
 GROUP BY Country;
 # => Sierra Leone has much more child deaths than the group of countries above
 
-# EDA TASK 10
+# EDA TASK 10: Rolling Average of Adult Mortality
 SELECT Country, Year, AVG(AdultMortality) OVER(PARTITION BY Country ORDER BY Year) AS rolling_avg
 FROM worldlifexpectancy
 WHERE Year BETWEEN 2018 AND 2022;
 # => Adult mortality has been steadily decreasing during the 2018-2022 period in most countries
 
-# EDA TASK 11
+# EDA TASK 11: Impact of Healthcare Expenditure
 # Calculate the correlation coefficient
 SELECT SUM((percentageexpenditure - (SELECT AVG(percentageexpenditure) FROM worldlifexpectancy))*
 	(Lifeexpectancy - (SELECT AVG(Lifeexpectancy) FROM worldlifexpectancy))) /
@@ -375,7 +375,7 @@ SELECT SUM((percentageexpenditure - (SELECT AVG(percentageexpenditure) FROM worl
 FROM worldlifexpectancy;
 # corr = 0.4056, indicating a positive relationship between the two variables.
 
-# EDA TASK 12:
+# EDA TASK 12: BMI and Health Indicators
 SELECT SUM((BMI - (SELECT AVG(BMI) FROM worldlifexpectancy))*
 	(Lifeexpectancy - (SELECT AVG(Lifeexpectancy) FROM worldlifexpectancy))) /
 	SQRT(NULLIF(SUM(POWER(BMI - (SELECT AVG(BMI) FROM worldlifexpectancy), 2)) *
@@ -383,7 +383,7 @@ SELECT SUM((BMI - (SELECT AVG(BMI) FROM worldlifexpectancy))*
 FROM worldlifexpectancy;      
 # corr = 0.7194, indicating a strong positive correlation. As BMI increases, Life expectancy also tends to go up.       
  
-# EDA TASK 13:
+# EDA TASK 13: GDP and Health Outcomes
 SELECT gdp_groups, ROUND(AVG(Lifeexpectancy),1), ROUND(AVG(AdultMortality),1), ROUND(AVG(infantdeaths),1)
 FROM (
 	SELECT Lifeexpectancy, AdultMortality, infantdeaths, CASE
@@ -394,7 +394,7 @@ FROM (
 GROUP BY gdp_groups;
 # => The low GDP group has lower Life expectancy, significantly higher Adult mortality and infant mortality
 
-# EDA TASK 14:
+# EDA TASK 14: Subgroup Analysis of Life Expectancy
 # Create a table of continents
 CREATE TABLE `continent` (
   `Country` VARCHAR(60),
